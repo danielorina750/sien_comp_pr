@@ -31,13 +31,16 @@ export async function POST(request: Request) {
     const origin = new URL(request.url).origin;
     const normalizedProjects = normalizeProjects(payload.projects, origin);
 
-    const stream = (await renderToStream(
-      React.createElement(ProfileDocument, {
-        options: payload.options,
-        contact: payload.contact,
-        projects: normalizedProjects
-      })
-    )) as Readable;
+    const document = React.createElement(ProfileDocument, {
+      options: payload.options,
+      contact: payload.contact,
+      projects: normalizedProjects
+    });
+
+    // @react-pdf/renderer expects a React-PDF <Document /> element.
+    // ProfileDocument returns that element, but TypeScript cannot infer it through
+    // React.createElement in a Next.js route handler, so we narrow it at the API boundary.
+    const stream = (await renderToStream(document as any)) as Readable;
 
     const chunks: Buffer[] = [];
     for await (const chunk of stream) {
