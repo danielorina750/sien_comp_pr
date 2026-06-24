@@ -1,33 +1,29 @@
-# Exact SIEN PDF Template Mode
+# Exact PDF Template Mode
 
-This version uses `public/pdf-template/sien-updated-2.pdf` as the locked approved design template.
+This version uses the uploaded SIEN profile PDF as the visual source of truth.
 
-The PDF generator does **not** redraw the approved 30-page company profile with React-PDF. Instead, it copies the approved PDF pages directly using `pdf-lib`, so the generated profile keeps the exact visual design, alignment, typography, content formatting, and certificate pages from `Sien Updated 2.pdf`.
+## How it works
 
-## How new portal projects are handled
+- The 30-page reference profile is pre-rendered into `/public/pdf-template/page-01.jpg` through `/public/pdf-template/page-30.jpg`.
+- Static company sections such as cover, overview, service engine, portfolio analytics, compliance, regulatory papers, and contact are inserted as exact full-page template images.
+- Existing SIEN portfolio projects that match the reference profile use the exact reference profile pages.
+- New projects added through the portal are inserted using a matching SIEN project-page layout: dark green/cream background, lime border, status/location pills, project image, description, and design intelligence bullets.
 
-- Existing SIEN projects that already exist in the approved profile are not redrawn.
-- New projects added in the portal are appended after the approved 30-page profile.
-- The appended pages use the SIEN-style project page layout and start from page 31.
+## Why this was added
 
-This keeps the official profile identical while still allowing the company to add new project pages through the portal.
+The previous PDF generator created a similar profile, but it did not follow the exact visual format of the approved SIEN PDF. This version preserves the reference design and only generates new project pages when additional uploaded projects need to be added.
 
-## Important files
+## Important note
 
-```text
-public/pdf-template/sien-updated-2.pdf
-app/api/generate-profile/route.ts
-lib/pdf/ProfileDocument.tsx
-```
+If the approved base PDF design changes, re-render the new PDF pages into `/public/pdf-template/` and replace the existing page images.
 
-## Deployment
+## Dynamic project page update
 
-Deploy normally to Vercel:
+Dynamic project pages now use the same SIEN portfolio page language as the approved profile:
 
-```text
-Framework Preset: Next.js
-Install Command: npm install
-Build Command: npm run build
-Output Directory: leave empty
-Root Directory: repository root
-```
+- full-bleed architectural image on one side;
+- rounded dark or light content card on the opposite side;
+- status and location pills;
+- category label, project title, description and design intelligence bullets;
+- no empty interstitial page or blank visual gap before the next section;
+- safe image fallback so PDF generation never produces a blank project page when an uploaded image is temporarily unavailable.
