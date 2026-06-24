@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { defaultContact, seedProjects } from "@/data/seedProjects";
 import { loadLocalProjects, resetLocalProjects, saveLocalProjects } from "@/lib/localStorage";
-import { isSupabaseConfigured, supabase } from "@/lib/supabaseClient";
+import { isSupabaseConfigured, supabase, supabaseConfigError } from "@/lib/supabaseClient";
 import type { CompanyContact, CompanyProfileOptions, Project, ProjectCategory, ProjectStatus } from "@/lib/types";
 
 const categories: ProjectCategory[] = [
@@ -91,10 +91,10 @@ async function fetchSupabaseProjects(): Promise<Project[]> {
     scope: row.scope ?? [],
     highlights: row.highlights ?? [],
     coverImage: { src: row.cover_image_url, alt: row.title },
-    gallery: (row.gallery_images ?? []).map((src: string) => ({ src, alt: row.title })),
-    featured: row.featured,
-    published: row.published,
-    includeInProfile: row.include_in_profile,
+    gallery: ((row.gallery ?? row.gallery_images ?? []) as string[]).map((src: string) => ({ src, alt: row.title })),
+    featured: Boolean(row.is_featured ?? row.featured ?? false),
+    published: Boolean(row.is_published ?? row.published ?? false),
+    includeInProfile: Boolean(row.include_in_pdf ?? row.include_in_profile ?? true),
     createdAt: row.created_at,
     updatedAt: row.updated_at
   })) as Project[];
@@ -115,10 +115,10 @@ async function saveSupabaseProject(project: Project): Promise<void> {
     scope: project.scope,
     highlights: project.highlights,
     cover_image_url: project.coverImage.src,
-    gallery_images: project.gallery.map((image) => image.src),
-    featured: project.featured,
-    published: project.published,
-    include_in_profile: project.includeInProfile,
+    gallery: project.gallery.map((image) => image.src),
+    is_featured: project.featured,
+    is_published: project.published,
+    include_in_pdf: project.includeInProfile,
     updated_at: new Date().toISOString()
   });
   if (error) throw error;
@@ -175,7 +175,9 @@ export function ProfilePortal() {
             saveLocalProjects(remoteProjects);
           }
         })
-        .catch((error) => setNotice(`Supabase load failed, using local fallback: ${error.message}`));
+        .catch((error) => setNotice(`Supabase load failed. Check Vercel environment variables and schema. Details: ${error.message}`));
+    } else if (supabaseConfigError) {
+      setNotice(`Supabase is not connected: ${supabaseConfigError}. Using local fallback.`);
     }
   }, []);
 

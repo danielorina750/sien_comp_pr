@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
 
 const footerText = "SIEN GROUP PROFILE - ARCHITECTURE / ENGINEERING / DEVELOPMENT";
 
-const exactProjectPages: Record<string, number> = {
+export const exactProjectPages: Record<string, number> = {
   "the-kitale-country-manor": 9,
   "kitale-country-manor": 9,
   "hill-side-residential-home": 10,
@@ -361,7 +361,7 @@ function normalizeTag(value: string): string {
   return value.toUpperCase();
 }
 
-function DynamicProjectPage({ project, page, variant }: { project: Project; page: number; variant: "dark-left" | "dark-right" | "light" }) {
+export function DynamicProjectPage({ project, page, variant }: { project: Project; page: number; variant: "dark-left" | "dark-right" | "light" }) {
   const isLight = variant === "light";
   const imageOnLeft = variant === "dark-right" || variant === "light";
   const projectImageStyle = imageOnLeft ? styles.projectImageLeft : styles.projectImageRight;
@@ -402,7 +402,7 @@ function DynamicProjectPage({ project, page, variant }: { project: Project; page
   );
 }
 
-function getIncludedProjects(options: CompanyProfileOptions, projects: Project[]): Project[] {
+export function getIncludedProjects(options: CompanyProfileOptions, projects: Project[]): Project[] {
   return projects.filter((project) => {
     if (!project.includeInProfile) return false;
     if (!project.published) return false;
@@ -473,6 +473,20 @@ export function ProfileDocument({
         </>
       ) : null}
       {options.includeContact ? <ExactTemplatePage templateBase={templateBase} page={30} /> : null}
+    </Document>
+  );
+}
+
+
+export function DynamicProjectsDocument({ projects, startPage = 31 }: { projects: Project[]; startPage?: number }) {
+  let page = startPage;
+
+  return (
+    <Document title="SIEN Dynamic Project Pages" author="SIEN Group">
+      {projects.map((project, index) => {
+        const variant = index % 3 === 2 ? "light" : index % 2 === 0 ? "dark-right" : "dark-left";
+        return <DynamicProjectPage key={`dynamic-${project.id}`} project={project} page={page++} variant={variant} />;
+      })}
     </Document>
   );
 }

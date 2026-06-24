@@ -1,12 +1,10 @@
-# SIEN Profile Builder - Vercel Exact Template Edition
+# SIEN Company Profile Builder - Exact PDF Template
 
-A Vercel-ready Next.js portal for adding SIEN projects and generating an updated company profile PDF.
+A Vercel-ready Next.js portal for managing SIEN project data and generating updated company profile PDFs.
 
-This edition uses the approved SIEN profile PDF design as the visual source of truth. The generated PDF preserves the exact cover, overview, portfolio intelligence, compliance, regulatory, and contact page design while allowing new uploaded projects to be added using matching SIEN-style project pages.
+This version uses the approved `Sien Updated 2.pdf` as the exact design template. The generator copies the approved PDF page-for-page and appends new portal projects after the original profile, preserving the official design and formatting exactly.
 
-## Deploy on Vercel
-
-Use these settings:
+## Vercel Settings
 
 ```text
 Framework Preset: Next.js
@@ -16,13 +14,11 @@ Output Directory: leave empty
 Root Directory: repository root
 ```
 
-## Environment variables
-
-Add these in Vercel:
+## Environment Variables
 
 ```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
 ```
 
 ## Supabase
@@ -33,26 +29,14 @@ Run:
 supabase/schema.sql
 ```
 
-This creates:
+This creates/updates the `projects` table and the public `project-images` storage bucket.
 
-- `projects` table
-- `profile_versions` table
-- public `project-images` storage bucket
-- RLS policies for test/admin usage
+## PDF Generation
 
-## PDF generation
-
-The API route is:
+The approved PDF is stored at:
 
 ```text
-/api/generate-profile
+public/pdf-template/sien-updated-2.pdf
 ```
 
-It generates a PDF using:
-
-- exact page templates from `/public/pdf-template/`
-- dynamic SIEN-styled project pages for new uploaded projects
-
-## Important
-
-For production, remove the temporary anon project-management policy in `supabase/schema.sql` and require Supabase Auth for project creation/editing.
+New projects added in the portal and marked for profile inclusion are appended after page 30.
