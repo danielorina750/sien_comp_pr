@@ -1,29 +1,14 @@
-# SIEN Profile Builder - Vercel Ready
+# SIEN Profile Builder - Vercel Exact Template Edition
 
-This is a standalone Next.js portal for SIEN Group. It lets an admin add projects, upload project images, choose which projects should appear in the company profile, and generate an updated PDF using the same premium architectural design direction.
+A Vercel-ready Next.js portal for adding SIEN projects and generating an updated company profile PDF.
 
-The project is intentionally **not a monorepo** so it is easy to upload directly to Vercel without workspace dependency issues.
+This edition uses the approved SIEN profile PDF design as the visual source of truth. The generated PDF preserves the exact cover, overview, portfolio intelligence, compliance, regulatory, and contact page design while allowing new uploaded projects to be added using matching SIEN-style project pages.
 
-## Features
+## Deploy on Vercel
 
-- Project entry portal
-- Image upload to Supabase Storage
-- Local fallback mode if Supabase is not configured
-- Include/exclude projects from PDF
-- Featured project toggle
-- Profile builder with selectable sections
-- Server-side PDF generation using `@react-pdf/renderer`
-- Vercel-compatible API route for PDF download
-- Seed SIEN project content and images
-- Supabase SQL schema included
+Use these settings:
 
-## Deploy to Vercel
-
-1. Push this folder to GitHub.
-2. Import the repository into Vercel.
-3. Use these settings:
-
-```txt
+```text
 Framework Preset: Next.js
 Install Command: npm install
 Build Command: npm run build
@@ -31,51 +16,43 @@ Output Directory: leave empty
 Root Directory: repository root
 ```
 
-4. Add environment variables in Vercel:
+## Environment variables
 
-```txt
+Add these in Vercel:
+
+```text
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
 
-5. Redeploy.
+## Supabase
 
-## Supabase setup
+Run:
 
-1. Open Supabase Dashboard.
-2. Go to SQL Editor.
-3. Paste and run `supabase/schema.sql`.
-4. Confirm there is a `projects` table.
-5. Confirm there is a `project-media` storage bucket.
-
-## Production security note
-
-The included SQL allows anon writes temporarily so the portal works fast during testing. For production, remove the policy named:
-
-```sql
-Temporary anon project management
+```text
+supabase/schema.sql
 ```
 
-Then use Supabase Authentication and restrict project creation to authenticated admin users only.
+This creates:
 
-## How it works
-
-```txt
-Admin adds project -> Image stored in Supabase -> Project saved in database -> PDF Builder selects projects -> API route generates company profile PDF -> Admin downloads latest PDF
-```
+- `projects` table
+- `profile_versions` table
+- public `project-images` storage bucket
+- RLS policies for test/admin usage
 
 ## PDF generation
 
-The PDF is generated in:
+The API route is:
 
-```txt
-app/api/generate-profile/route.ts
+```text
+/api/generate-profile
 ```
 
-The template is in:
+It generates a PDF using:
 
-```txt
-lib/pdf/ProfileDocument.tsx
-```
+- exact page templates from `/public/pdf-template/`
+- dynamic SIEN-styled project pages for new uploaded projects
 
-You can tune colors, page layout, project-page designs, compliance pages, and typography from that file.
+## Important
+
+For production, remove the temporary anon project-management policy in `supabase/schema.sql` and require Supabase Auth for project creation/editing.

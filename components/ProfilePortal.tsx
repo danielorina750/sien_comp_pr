@@ -65,9 +65,9 @@ async function uploadImage(file: File): Promise<string> {
   if (!supabase) return fileToDataUrl(file);
   const safeName = `${Date.now()}-${file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-")}`;
   const path = `projects/${safeName}`;
-  const { error } = await supabase.storage.from("project-media").upload(path, file, { upsert: true });
+  const { error } = await supabase.storage.from("project-images").upload(path, file, { upsert: true });
   if (error) throw error;
-  const { data } = supabase.storage.from("project-media").getPublicUrl(path);
+  const { data } = supabase.storage.from("project-images").getPublicUrl(path);
   return data.publicUrl;
 }
 

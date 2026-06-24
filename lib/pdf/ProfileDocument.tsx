@@ -2,17 +2,33 @@ import React from "react";
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { CompanyContact, CompanyProfileOptions, Project } from "@/lib/types";
 
+const PAGE_SIZE: [number, number] = [1200, 675];
+
 const colors = {
   ink: "#062B21",
   forest: "#0B3A2E",
   moss: "#A8E845",
   cream: "#F3EFE4",
   white: "#F8F7F2",
-  muted: "#B9C2B8",
-  line: "rgba(168,232,69,0.34)"
+  darkText: "#083126",
+  mutedDark: "#53645D"
 };
 
 const styles = StyleSheet.create({
+  exactPage: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    padding: 0,
+    backgroundColor: colors.ink
+  },
+  fullPageImage: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: PAGE_SIZE[0],
+    height: PAGE_SIZE[1]
+  },
   pageDark: {
     position: "relative",
     width: "100%",
@@ -31,270 +47,288 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: "Helvetica"
   },
+  gridLineVertical: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 1,
+    backgroundColor: "rgba(168,232,69,0.12)"
+  },
+  gridLineHorizontal: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: "rgba(168,232,69,0.10)"
+  },
   footer: {
     position: "absolute",
-    left: 42,
+    left: 38,
     bottom: 24,
     fontSize: 8,
     color: "rgba(248,247,242,0.72)",
-    letterSpacing: 0.7
+    letterSpacing: 0.65
   },
   footerLight: {
     position: "absolute",
-    left: 42,
+    left: 38,
     bottom: 24,
     fontSize: 8,
     color: "rgba(6,43,33,0.62)",
-    letterSpacing: 0.7
+    letterSpacing: 0.65
   },
   pageNumber: {
     position: "absolute",
-    right: 42,
+    right: 38,
     bottom: 24,
     fontSize: 9,
-    color: "rgba(248,247,242,0.7)"
+    color: "rgba(248,247,242,0.72)"
   },
   pageNumberLight: {
     position: "absolute",
-    right: 42,
+    right: 38,
     bottom: 24,
     fontSize: 9,
-    color: "rgba(6,43,33,0.7)"
+    color: "rgba(6,43,33,0.70)"
   },
-  label: {
-    fontSize: 9,
-    letterSpacing: 1.4,
+  eyebrowDark: {
+    fontSize: 8,
+    textTransform: "uppercase",
+    color: colors.white,
+    opacity: 0.78,
+    letterSpacing: 0.8,
+    marginBottom: 46
+  },
+  eyebrowMoss: {
+    fontSize: 8,
     textTransform: "uppercase",
     color: colors.moss,
-    marginBottom: 12
+    letterSpacing: 0.9,
+    marginBottom: 20
   },
-  heroTitle: {
-    fontSize: 64,
-    lineHeight: 0.95,
-    fontWeight: 700,
-    maxWidth: 520
-  },
-  heading: {
-    fontSize: 38,
-    lineHeight: 1.02,
-    fontWeight: 700,
-    marginBottom: 12
-  },
-  body: {
-    fontSize: 12,
-    lineHeight: 1.55,
-    color: "rgba(248,247,242,0.78)"
-  },
-  bodyDark: {
-    fontSize: 12,
-    lineHeight: 1.55,
-    color: "rgba(6,43,33,0.72)"
-  },
-  coverGrid: {
-    display: "flex",
-    flexDirection: "row",
+  projectLayout: {
+    position: "relative",
     height: "100%",
-    gap: 28
+    flexDirection: "row"
   },
-  coverLeft: {
-    width: "42%",
-    justifyContent: "center"
-  },
-  coverRight: {
-    width: "58%",
-    borderRadius: 22,
-    overflow: "hidden",
-    border: `1.4px solid ${colors.moss}`
-  },
-  coverImage: {
-    width: "100%",
-    height: "100%",
+  projectImageLeft: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: 690,
+    height: 675,
     objectFit: "cover"
   },
-  pill: {
-    alignSelf: "flex-start",
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 12,
-    paddingRight: 12,
-    borderRadius: 100,
-    backgroundColor: colors.moss,
-    color: colors.ink,
-    fontSize: 9,
-    fontWeight: 700,
-    textTransform: "uppercase"
+  projectImageRight: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    width: 690,
+    height: 675,
+    objectFit: "cover"
   },
-  statRow: {
-    display: "flex",
-    flexDirection: "row",
-    gap: 18,
-    marginTop: 32
+  projectOverlayLeft: {
+    position: "absolute",
+    left: 64,
+    top: 78,
+    width: 420,
+    minHeight: 500,
+    borderRadius: 34,
+    paddingTop: 46,
+    paddingRight: 36,
+    paddingBottom: 38,
+    paddingLeft: 36,
+    border: "1.5px solid #A8E845",
+    backgroundColor: "rgba(8,59,44,0.95)"
   },
-  statCard: {
-    flex: 1,
+  projectOverlayRight: {
+    position: "absolute",
+    right: 64,
+    top: 78,
+    width: 420,
+    minHeight: 500,
+    borderRadius: 34,
+    paddingTop: 46,
+    paddingRight: 36,
+    paddingBottom: 38,
+    paddingLeft: 36,
+    border: "1.5px solid #A8E845",
+    backgroundColor: "rgba(8,59,44,0.95)"
+  },
+  projectOverlayLight: {
+    position: "absolute",
+    right: 76,
+    top: 82,
+    width: 380,
+    minHeight: 500,
+    borderRadius: 34,
+    paddingTop: 46,
+    paddingRight: 34,
+    paddingBottom: 38,
+    paddingLeft: 34,
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 20,
-    border: "1px solid rgba(6,43,33,0.12)"
+    color: colors.darkText
   },
-  statValue: {
-    fontSize: 34,
-    fontWeight: 700,
-    color: colors.ink
-  },
-  statLabel: {
-    fontSize: 10,
-    color: "rgba(6,43,33,0.62)",
-    marginTop: 4
-  },
-  servicesGrid: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 18,
-    marginTop: 24
-  },
-  serviceCard: {
-    width: "31%",
-    minHeight: 118,
-    borderRadius: 18,
-    padding: 18,
-    border: "1px solid rgba(168,232,69,0.55)",
-    backgroundColor: "rgba(8,59,44,0.82)"
-  },
-  serviceNumber: {
-    fontSize: 11,
-    color: colors.moss,
-    marginBottom: 12
-  },
-  serviceTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    marginBottom: 8
-  },
-  projectPage: {
-    display: "flex",
-    flexDirection: "row",
-    height: "100%",
-    gap: 28
-  },
-  projectImageBlock: {
-    width: "56%",
-    borderRadius: 24,
-    overflow: "hidden",
-    border: `1.4px solid ${colors.moss}`,
-    backgroundColor: colors.forest
-  },
-  projectImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover"
-  },
-  projectContent: {
-    width: "44%",
-    padding: 28,
-    borderRadius: 28,
-    border: `1.5px solid ${colors.moss}`,
-    backgroundColor: "rgba(8,59,44,0.92)",
-    justifyContent: "space-between"
-  },
-  metaRow: {
-    display: "flex",
+  tagRow: {
     flexDirection: "row",
     gap: 8,
-    marginBottom: 20,
+    marginBottom: 42,
     flexWrap: "wrap"
   },
-  metaTag: {
-    fontSize: 8,
+  tagMoss: {
+    fontSize: 7.5,
+    textTransform: "uppercase",
+    color: colors.ink,
+    backgroundColor: colors.moss,
+    borderRadius: 12,
     paddingTop: 6,
     paddingBottom: 6,
-    paddingLeft: 9,
-    paddingRight: 9,
-    borderRadius: 100,
-    backgroundColor: colors.moss,
-    color: colors.ink,
-    textTransform: "uppercase",
+    paddingRight: 10,
+    paddingLeft: 10,
     fontWeight: 700
   },
-  metaTagWhite: {
-    fontSize: 8,
+  tagWhite: {
+    fontSize: 7.5,
+    textTransform: "uppercase",
+    color: colors.ink,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
     paddingTop: 6,
     paddingBottom: 6,
-    paddingLeft: 9,
-    paddingRight: 9,
-    borderRadius: 100,
-    backgroundColor: "#FFFFFF",
+    paddingRight: 10,
+    paddingLeft: 10
+  },
+  tagPale: {
+    fontSize: 7.5,
+    textTransform: "uppercase",
     color: colors.ink,
-    textTransform: "uppercase"
+    backgroundColor: "#F8F7F2",
+    borderRadius: 12,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingRight: 10,
+    paddingLeft: 10
+  },
+  categoryText: {
+    fontSize: 8,
+    color: colors.moss,
+    textTransform: "uppercase",
+    marginBottom: 14
   },
   projectTitle: {
-    fontSize: 32,
-    lineHeight: 1.05,
+    fontSize: 34,
+    lineHeight: 1,
+    color: colors.white,
     fontWeight: 700,
-    marginBottom: 18
+    marginBottom: 20
   },
-  bullet: {
-    display: "flex",
+  projectTitleLight: {
+    fontSize: 34,
+    lineHeight: 1,
+    color: colors.darkText,
+    fontWeight: 700,
+    marginBottom: 20
+  },
+  projectDescription: {
+    fontSize: 11,
+    lineHeight: 1.45,
+    color: "rgba(248,247,242,0.78)"
+  },
+  projectDescriptionLight: {
+    fontSize: 11,
+    lineHeight: 1.45,
+    color: "rgba(6,43,33,0.70)"
+  },
+  intelligenceBlock: {
+    marginTop: 110
+  },
+  intelligenceTitle: {
+    fontSize: 10,
+    color: colors.white,
+    fontWeight: 700,
+    marginBottom: 12
+  },
+  intelligenceTitleLight: {
+    fontSize: 10,
+    color: colors.darkText,
+    fontWeight: 700,
+    marginBottom: 12
+  },
+  bulletRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 8,
-    marginBottom: 8
+    marginBottom: 9,
+    gap: 8
   },
   bulletDot: {
     width: 5,
     height: 5,
-    borderRadius: 10,
+    borderRadius: 5,
     marginTop: 5,
     backgroundColor: colors.moss
   },
   bulletText: {
-    fontSize: 10,
-    lineHeight: 1.35,
-    color: "rgba(248,247,242,0.78)",
-    flex: 1
-  },
-  complianceGrid: {
-    display: "flex",
-    flexDirection: "row",
-    gap: 22,
-    marginTop: 28
-  },
-  complianceCard: {
     flex: 1,
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
-    padding: 18,
-    minHeight: 250,
-    border: "1px solid rgba(6,43,33,0.12)"
+    fontSize: 9.3,
+    lineHeight: 1.25,
+    color: "rgba(248,247,242,0.78)"
   },
-  contactGrid: {
-    display: "flex",
-    flexDirection: "row",
-    gap: 22,
-    marginTop: 28
-  },
-  contactCard: {
+  bulletTextLight: {
     flex: 1,
-    borderRadius: 18,
-    padding: 18,
-    border: `1.2px solid ${colors.moss}`,
-    backgroundColor: "rgba(8,59,44,0.8)"
+    fontSize: 9.3,
+    lineHeight: 1.25,
+    color: "rgba(6,43,33,0.70)"
   },
-  contactLabel: {
-    fontSize: 9,
-    textTransform: "uppercase",
+  bigPageNumber: {
+    position: "absolute",
+    right: 35,
+    bottom: 35,
     color: colors.moss,
-    marginBottom: 8
-  },
-  contactValue: {
-    fontSize: 13,
-    color: colors.white,
-    lineHeight: 1.3
+    fontSize: 42,
+    fontWeight: 700
   }
 });
 
 const footerText = "SIEN GROUP PROFILE - ARCHITECTURE / ENGINEERING / DEVELOPMENT";
+
+const exactProjectPages: Record<string, number> = {
+  "the-kitale-country-manor": 9,
+  "kitale-country-manor": 9,
+  "hill-side-residential-home": 10,
+  "rongai-residential-home": 11,
+  "asembo-bay-kendu": 12,
+  "ngong-apartments": 13,
+  "kahawa-highrise-apartments": 14,
+  "nyanchwa-city-stay-apartments": 15,
+  "ekrano-resort": 16,
+  "kimuka-resort": 17,
+  "hbvm-narok-hospital": 18,
+  "kanyimbo-hospital": 19,
+  "ugc-level-4-hospital": 20,
+  "guardian-mall": 21,
+  "kansons-square": 22,
+  "ragos-industrial-park": 23,
+  "kisii-school-stem-complex": 24,
+  "kisii-stadium": 25,
+  "trans-west-pbsa": 26,
+  "transwest-pbsa": 26
+};
+
+function pageName(page: number): string {
+  return `page-${String(page).padStart(2, "0")}.jpg`;
+}
+
+function templateImageSrc(templateBase: string, page: number): string {
+  return `${templateBase.replace(/\/$/, "")}/${pageName(page)}`;
+}
+
+function ExactTemplatePage({ templateBase, page }: { templateBase: string; page: number }) {
+  return (
+    <Page size={PAGE_SIZE} style={styles.exactPage}>
+      <Image src={templateImageSrc(templateBase, page)} style={styles.fullPageImage} />
+    </Page>
+  );
+}
 
 function Footer({ page, light = false }: { page: number; light?: boolean }) {
   return (
@@ -305,244 +339,140 @@ function Footer({ page, light = false }: { page: number; light?: boolean }) {
   );
 }
 
-function projectImage(projects: Project[]): string | undefined {
-  return projects.find((project) => project.coverImage?.src)?.coverImage.src;
-}
-
-function BulletList({ items }: { items: string[] }) {
+function Grid() {
   return (
-    <View>
-      {items.slice(0, 5).map((item) => (
-        <View key={item} style={styles.bullet}>
-          <View style={styles.bulletDot} />
-          <Text style={styles.bulletText}>{item}</Text>
-        </View>
+    <>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <View key={`v-${i}`} style={[styles.gridLineVertical, { left: 85 + i * 220 }]} />
       ))}
-    </View>
+      {[0, 1, 2, 3].map((i) => (
+        <View key={`h-${i}`} style={[styles.gridLineHorizontal, { top: 85 + i * 145 }]} />
+      ))}
+    </>
   );
 }
 
-const services = [
-  ["01", "Architecture", "Concept design, master planning, interiors, landscape and visual development."],
-  ["02", "Engineering", "Structural, civil, MEP and technical design coordination."],
-  ["03", "Project Management", "Site execution, material control, inspections and cost containment."],
-  ["04", "Urban Planning", "Zoning, physical planning subdivisions, registrations and maps."],
-  ["05", "Development Advisory", "Municipal guidelines, land validation and regulatory filing support."],
-  ["06", "Real Estate Finance", "Feasibility, quantity budgeting and investment return framing."]
-] as const;
+function bullets(items: string[]) {
+  const source = items.length > 0 ? items : ["Concept architecture", "Civil engineering design", "Site supervision", "Design coordination"];
+  return source.slice(0, 4);
+}
 
-export function ProfileDocument({
-  options,
-  contact,
-  projects
-}: {
-  options: CompanyProfileOptions;
-  contact: CompanyContact;
-  projects: Project[];
-}) {
-  const includedProjects = projects.filter((project) => {
+function normalizeTag(value: string): string {
+  return value.toUpperCase();
+}
+
+function DynamicProjectPage({ project, page, variant }: { project: Project; page: number; variant: "dark-left" | "dark-right" | "light" }) {
+  const isLight = variant === "light";
+  const imageOnLeft = variant === "dark-right" || variant === "light";
+  const projectImageStyle = imageOnLeft ? styles.projectImageLeft : styles.projectImageRight;
+  const contentStyle = isLight ? styles.projectOverlayLight : imageOnLeft ? styles.projectOverlayRight : styles.projectOverlayLeft;
+  const titleStyle = isLight ? styles.projectTitleLight : styles.projectTitle;
+  const descriptionStyle = isLight ? styles.projectDescriptionLight : styles.projectDescription;
+  const intelligenceTitleStyle = isLight ? styles.intelligenceTitleLight : styles.intelligenceTitle;
+  const bulletTextStyle = isLight ? styles.bulletTextLight : styles.bulletText;
+
+  return (
+    <Page size={PAGE_SIZE} style={isLight ? styles.pageLight : styles.pageDark}>
+      <Grid />
+      <Text style={[styles.eyebrowDark, { color: isLight ? colors.darkText : colors.white }]}>{normalizeTag(project.category)} PORTFOLIO</Text>
+      <Image src={project.coverImage.src} style={projectImageStyle} />
+      <View style={contentStyle}>
+        <View>
+          <View style={styles.tagRow}>
+            <Text style={styles.tagMoss}>{normalizeTag(project.status)}</Text>
+            <Text style={isLight ? styles.tagPale : styles.tagWhite}>{normalizeTag(project.location)}</Text>
+          </View>
+          <Text style={styles.categoryText}>{normalizeTag(project.category)} / PORTFOLIO</Text>
+          <Text style={titleStyle}>{project.title}</Text>
+          <Text style={descriptionStyle}>{project.shortDescription}</Text>
+        </View>
+        <View style={styles.intelligenceBlock}>
+          <Text style={intelligenceTitleStyle}>Design intelligence</Text>
+          {bullets(project.highlights).map((item) => (
+            <View key={item} style={styles.bulletRow}>
+              <View style={styles.bulletDot} />
+              <Text style={bulletTextStyle}>{item}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={styles.bigPageNumber}>{String(page).padStart(2, "0")}</Text>
+      </View>
+      <Footer page={page} light={isLight} />
+    </Page>
+  );
+}
+
+function getIncludedProjects(options: CompanyProfileOptions, projects: Project[]): Project[] {
+  return projects.filter((project) => {
     if (!project.includeInProfile) return false;
+    if (!project.published) return false;
     if (options.includeOnlyFeatured && !project.featured) return false;
     if (options.selectedProjectIds.length > 0 && !options.selectedProjectIds.includes(project.id)) return false;
     return true;
   });
+}
 
-  let page = 1;
-  const heroImage = projectImage(includedProjects);
-  const sectors = Array.from(new Set(includedProjects.map((project) => project.category)));
-  const statuses = Array.from(new Set(includedProjects.map((project) => project.status)));
+export function ProfileDocument({
+  options,
+  contact,
+  projects,
+  templateBase
+}: {
+  options: CompanyProfileOptions;
+  contact: CompanyContact;
+  projects: Project[];
+  templateBase: string;
+}) {
+  const includedProjects = getIncludedProjects(options, projects);
+  const exactProjects: Project[] = [];
+  const dynamicProjects: Project[] = [];
+
+  includedProjects.forEach((project) => {
+    if (exactProjectPages[project.slug]) exactProjects.push(project);
+    else dynamicProjects.push(project);
+  });
+
+  let dynamicPage = 31;
 
   return (
     <Document title={`${contact.name} - ${options.versionName}`} author={contact.name} subject="Company profile">
-      {options.includeCover ? (
-        <Page size={[1200, 675]} style={styles.pageDark}>
-          <View style={styles.coverGrid}>
-            <View style={styles.coverLeft}>
-              <Text style={styles.label}>SIEN Group / Premium Profile</Text>
-              <Text style={styles.heroTitle}>Designed Systems. Engineered Landmarks.</Text>
-              <Text style={[styles.body, { marginTop: 24, maxWidth: 420 }]}>
-                A multi-disciplinary design, development and infrastructure consulting firm unifying complex engineering with sophisticated aesthetic planning for long-term spatial and commercial asset value.
-              </Text>
-              <Text style={[styles.pill, { marginTop: 26 }]}>Est. 2019 / Architecture + Engineering</Text>
-            </View>
-            <View style={styles.coverRight}>{heroImage ? <Image src={heroImage} style={styles.coverImage} /> : null}</View>
-          </View>
-          <Footer page={page++} />
-        </Page>
-      ) : null}
-
+      {options.includeCover ? <ExactTemplatePage templateBase={templateBase} page={1} /> : null}
       {options.includeOverview ? (
-        <Page size={[1200, 675]} style={styles.pageLight}>
-          <Text style={styles.label}>Executive Snapshot</Text>
-          <Text style={styles.heading}>Architecture with institutional confidence</Text>
-          <Text style={[styles.bodyDark, { maxWidth: 900 }]}>
-            SIEN Group combines design thinking, engineering control, planning intelligence, cost discipline and site execution into one accountable delivery framework.
-          </Text>
-          <View style={styles.statRow}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>2019</Text>
-              <Text style={styles.statLabel}>Established operational foundation</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>{includedProjects.length}</Text>
-              <Text style={styles.statLabel}>Projects included in this profile</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>{sectors.length}</Text>
-              <Text style={styles.statLabel}>Built sectors represented</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>6</Text>
-              <Text style={styles.statLabel}>Core disciplines under one studio</Text>
-            </View>
-          </View>
-          <View style={[styles.statCard, { marginTop: 28, backgroundColor: colors.ink }]}>
-            <Text style={{ color: colors.moss, fontSize: 12, textTransform: "uppercase", marginBottom: 10 }}>Value proposition</Text>
-            <Text style={styles.body}>Reduce fragmentation across the project cycle by aligning concept design, statutory planning, engineering detail, cost control and construction supervision under one coordinated studio.</Text>
-          </View>
-          <Footer page={page++} light />
-        </Page>
+        <>
+          <ExactTemplatePage templateBase={templateBase} page={2} />
+          <ExactTemplatePage templateBase={templateBase} page={3} />
+          <ExactTemplatePage templateBase={templateBase} page={4} />
+        </>
       ) : null}
-
-      {options.includeServices ? (
-        <Page size={[1200, 675]} style={styles.pageDark}>
-          <Text style={styles.label}>Service Engine</Text>
-          <Text style={styles.heading}>From idea to asset: a controlled delivery engine</Text>
-          <Text style={[styles.body, { maxWidth: 850 }]}>The profile is structured around capability, control, evidence and portfolio proof.</Text>
-          <View style={styles.servicesGrid}>
-            {services.map(([number, title, description]) => (
-              <View key={title} style={styles.serviceCard}>
-                <Text style={styles.serviceNumber}>{number}</Text>
-                <Text style={styles.serviceTitle}>{title}</Text>
-                <Text style={styles.body}>{description}</Text>
-              </View>
-            ))}
-          </View>
-          <Footer page={page++} />
-        </Page>
-      ) : null}
-
+      {options.includeServices ? <ExactTemplatePage templateBase={templateBase} page={5} /> : null}
       {options.includePortfolioAnalytics ? (
-        <Page size={[1200, 675]} style={styles.pageLight}>
-          <Text style={styles.label}>Portfolio Intelligence</Text>
-          <Text style={styles.heading}>A diversified project portfolio</Text>
-          <Text style={[styles.bodyDark, { maxWidth: 850 }]}>This dynamic edition was generated from the portal, using only the projects selected for the company profile.</Text>
-          <View style={styles.statRow}>
-            <View style={[styles.statCard, { minHeight: 290 }]}>
-              <Text style={{ fontSize: 18, fontWeight: 700, marginBottom: 18 }}>Portfolio distribution by sector</Text>
-              {sectors.map((sector) => (
-                <View key={sector} style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 10 }}>
-                  <Text style={styles.bodyDark}>{sector}</Text>
-                  <Text style={{ fontSize: 12, fontWeight: 700 }}>{includedProjects.filter((project) => project.category === sector).length}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={[styles.statCard, { minHeight: 290, backgroundColor: colors.ink }]}>
-              <Text style={{ fontSize: 18, fontWeight: 700, color: colors.white, marginBottom: 18 }}>Project status pipeline</Text>
-              {statuses.map((status) => (
-                <View key={status} style={{ marginBottom: 14 }}>
-                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-                    <Text style={{ fontSize: 10, color: colors.white }}>{status}</Text>
-                    <Text style={{ fontSize: 10, color: colors.moss }}>{includedProjects.filter((project) => project.status === status).length}</Text>
-                  </View>
-                  <View style={{ height: 12, backgroundColor: "rgba(255,255,255,0.14)", borderRadius: 99 }}>
-                    <View style={{ width: `${Math.max(18, (includedProjects.filter((project) => project.status === status).length / Math.max(1, includedProjects.length)) * 100)}%`, height: 12, backgroundColor: colors.moss, borderRadius: 99 }} />
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-          <Footer page={page++} light />
-        </Page>
+        <>
+          <ExactTemplatePage templateBase={templateBase} page={6} />
+          <ExactTemplatePage templateBase={templateBase} page={7} />
+        </>
       ) : null}
 
-      <Page size={[1200, 675]} style={styles.pageDark}>
-        <View style={{ justifyContent: "center", height: "100%" }}>
-          <Text style={styles.label}>Selected Project Portfolio</Text>
-          <Text style={[styles.heroTitle, { maxWidth: 780 }]}>Curated builds across East Africa</Text>
-          <Text style={[styles.body, { marginTop: 24, maxWidth: 650 }]}>Residential, hospitality, healthcare, commercial, industrial, educational, sports, agricultural infrastructure and master-planning work presented as a controlled capability narrative.</Text>
-        </View>
-        <Footer page={page++} />
-      </Page>
+      <ExactTemplatePage templateBase={templateBase} page={8} />
 
-      {includedProjects.map((project, index) => (
-        <Page key={project.id} size={[1200, 675]} style={styles.pageDark}>
-          <View style={styles.projectPage}>
-            {index % 2 === 0 ? (
-              <>
-                <View style={styles.projectImageBlock}><Image src={project.coverImage.src} style={styles.projectImage} /></View>
-                <ProjectContent project={project} />
-              </>
-            ) : (
-              <>
-                <ProjectContent project={project} />
-                <View style={styles.projectImageBlock}><Image src={project.coverImage.src} style={styles.projectImage} /></View>
-              </>
-            )}
-          </View>
-          <Footer page={page++} />
-        </Page>
-      ))}
+      {exactProjects
+        .sort((a, b) => (exactProjectPages[a.slug] ?? 999) - (exactProjectPages[b.slug] ?? 999))
+        .map((project) => (
+          <ExactTemplatePage key={`exact-${project.id}`} templateBase={templateBase} page={exactProjectPages[project.slug]} />
+        ))}
 
+      {dynamicProjects.map((project, index) => {
+        const variant = index % 3 === 2 ? "light" : index % 2 === 0 ? "dark-right" : "dark-left";
+        return <DynamicProjectPage key={`dynamic-${project.id}`} project={project} page={dynamicPage++} variant={variant} />;
+      })}
+
+      {options.includePortfolioAnalytics ? <ExactTemplatePage templateBase={templateBase} page={27} /> : null}
       {options.includeCompliance ? (
-        <Page size={[1200, 675]} style={styles.pageLight}>
-          <Text style={styles.label}>Statutory Compliance</Text>
-          <Text style={styles.heading}>Registered. Compliant. Project-ready.</Text>
-          <Text style={[styles.bodyDark, { maxWidth: 780 }]}>Compliance content is intentionally separated from the project pages, giving reviewers a clean evidence section without crowding the portfolio narrative.</Text>
-          <View style={styles.complianceGrid}>
-            <View style={styles.complianceCard}>
-              <Text style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Certificate of Incorporation</Text>
-              <Text style={styles.bodyDark}>SAIGA INDEX ENTERPRISE LIMITED</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Private Limited Company under the Companies Act, 2015</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Company Number: PVT-6LU5A5L</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Registration date: 1 October 2019</Text>
-            </View>
-            <View style={styles.complianceCard}>
-              <Text style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Kenya Revenue Authority</Text>
-              <Text style={styles.bodyDark}>Active Tax Obligation Profile</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Registered for PAYE and Corporate Tax obligations</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Identification No: P051844189W</Text>
-              <Text style={[styles.bodyDark, { marginTop: 12 }]}>Effective status: Active since 01/10/2019</Text>
-            </View>
-          </View>
-          <Footer page={page++} light />
-        </Page>
+        <>
+          <ExactTemplatePage templateBase={templateBase} page={28} />
+          <ExactTemplatePage templateBase={templateBase} page={29} />
+        </>
       ) : null}
-
-      {options.includeContact ? (
-        <Page size={[1200, 675]} style={styles.pageDark}>
-          <Text style={styles.label}>Connect With Our Team</Text>
-          <Text style={styles.heroTitle}>Ready to begin a landmark?</Text>
-          <Text style={[styles.body, { marginTop: 22, maxWidth: 600 }]}>Consult on architectural drafting, structural engineering, planning approvals, construction materials supplies and project feasibility studies.</Text>
-          <View style={styles.contactGrid}>
-            <View style={styles.contactCard}><Text style={styles.contactLabel}>Headquarters</Text><Text style={styles.contactValue}>{contact.address}</Text></View>
-            <View style={styles.contactCard}><Text style={styles.contactLabel}>Email</Text><Text style={styles.contactValue}>{contact.email}</Text></View>
-            <View style={styles.contactCard}><Text style={styles.contactLabel}>Phone</Text><Text style={styles.contactValue}>{contact.phone}</Text></View>
-            <View style={styles.contactCard}><Text style={styles.contactLabel}>Web</Text><Text style={styles.contactValue}>{contact.website}</Text></View>
-          </View>
-          <Footer page={page++} />
-        </Page>
-      ) : null}
+      {options.includeContact ? <ExactTemplatePage templateBase={templateBase} page={30} /> : null}
     </Document>
-  );
-}
-
-function ProjectContent({ project }: { project: Project }) {
-  return (
-    <View style={styles.projectContent}>
-      <View>
-        <View style={styles.metaRow}>
-          <Text style={styles.metaTag}>{project.status}</Text>
-          <Text style={styles.metaTagWhite}>{project.location}</Text>
-          <Text style={styles.metaTagWhite}>{project.category}</Text>
-        </View>
-        <Text style={styles.projectTitle}>{project.title}</Text>
-        <Text style={styles.body}>{project.shortDescription}</Text>
-      </View>
-      <View>
-        <Text style={[styles.label, { marginBottom: 10 }]}>Design intelligence</Text>
-        <BulletList items={project.highlights} />
-      </View>
-    </View>
   );
 }

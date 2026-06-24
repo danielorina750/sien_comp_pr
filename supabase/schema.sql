@@ -34,14 +34,27 @@ create table if not exists public.profile_versions (
   created_at timestamptz not null default now()
 );
 
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists set_projects_updated_at on public.projects;
+create trigger set_projects_updated_at
+before update on public.projects
+for each row execute function public.set_updated_at();
+
 insert into storage.buckets (id, name, public)
-values ('project-media', 'project-media', true)
-on conflict (id) do nothing;
+values ('project-images', 'project-images', true)
+on conflict (id) do update set public = true;
 
 alter table public.projects enable row level security;
 alter table public.profile_versions enable row level security;
 
--- Public site can read published projects.
+-- Public/website can read only published projects; authenticated admins can read all.
 drop policy if exists "Read published projects" on public.projects;
 create policy "Read published projects"
 on public.projects for select
@@ -56,8 +69,8 @@ to authenticated
 using (true)
 with check (true);
 
--- Demo/simple mode: allow anon writes if you are not using Supabase Auth yet.
--- For production, delete this policy and require authenticated users.
+-- Temporary test mode for the Vercel portal while you are not using login yet.
+-- For production: delete this policy and require Supabase Auth.
 drop policy if exists "Temporary anon project management" on public.projects;
 create policy "Temporary anon project management"
 on public.projects for all
@@ -65,28 +78,36 @@ to anon
 using (true)
 with check (true);
 
--- Storage policies.
-drop policy if exists "Public read project media" on storage.objects;
-create policy "Public read project media"
+-- Profile versions can be managed by authenticated admins.
+drop policy if exists "Authenticated profile version management" on public.profile_versions;
+create policy "Authenticated profile version management"
+on public.profile_versions for all
+to authenticated
+using (true)
+with check (true);
+
+-- Storage policies for project images.
+drop policy if exists "Public read project images" on storage.objects;
+create policy "Public read project images"
 on storage.objects for select
 to anon, authenticated
-using (bucket_id = 'project-media');
+using (bucket_id = 'project-images');
 
-drop policy if exists "Upload project media" on storage.objects;
-create policy "Upload project media"
+drop policy if exists "Upload project images" on storage.objects;
+create policy "Upload project images"
 on storage.objects for insert
 to anon, authenticated
-with check (bucket_id = 'project-media');
+with check (bucket_id = 'project-images');
 
-drop policy if exists "Update project media" on storage.objects;
-create policy "Update project media"
+drop policy if exists "Update project images" on storage.objects;
+create policy "Update project images"
 on storage.objects for update
 to anon, authenticated
-using (bucket_id = 'project-media')
-with check (bucket_id = 'project-media');
+using (bucket_id = 'project-images')
+with check (bucket_id = 'project-images');
 
-drop policy if exists "Delete project media" on storage.objects;
-create policy "Delete project media"
+drop policy if exists "Delete project images" on storage.objects;
+create policy "Delete project images"
 on storage.objects for delete
 to anon, authenticated
-using (bucket_id = 'project-media');
+using (bucket_id = 'project-images');
